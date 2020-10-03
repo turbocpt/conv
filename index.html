@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>ConverSation</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="dist/jquery.convform.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+	<section id="demo">
+	    <div class="vertical-align">
+	        <div class="container">
+	            <div class="row">
+	                <div class="col-sm-6 col-sm-offset-3 col-xs-offset-0">
+	                    <div class="card no-border">
+	                        <div id="chat" class="conv-form-wrapper">
+	                            <form action="" method="GET" class="hidden">
+                                        <!--input type="text" name="input" data-conv-question="what would you like?" data-callback="getInfo"-->
+										<select data-conv-question="Hello, Please select an option." name="input" data-callback="getInfo">
+	                                      <option value="last_name">last Name</option>
+	                                      <option value="email">email</option>
+	                                </select>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	</section>
+	<script type="text/javascript" src="jquery-1.12.3.min.js"></script>
+	<script type="text/javascript" src="dist/autosize.min.js"></script>
+	<script type="text/javascript" src="dist/jquery.convform.js"></script>
+
+	<script>
+		var original = false;
+		function askAgain(convState, ready) {
+			if(convState.current.answer.value == 'yes') {
+				convState.current.next = original;
+				ready();
+			} else {
+				//do nothing, or maybe create a state saying goodbye
+				convState.current.next = convState.newState({
+                    type: 'select',
+                    questions: ['Good bye..Have a nice day.'],
+                    answers: [{text: 'Restart', value: 'restart'}]
+                });
+				convState.current.next.next = false;
+				ready();
+			}
+		}
+
+		function getInfo(convState, ready) {
+			var hresult = convState.current.answer.value;
+				$.ajax({
+					url: 'https://reqres.in/api/users?page='+1,
+					type: "GET",
+					success: function (response) {
+						  let data = response.data;
+        let array = [];
+        for(var i = 0; i < data.length; ++i) {
+		//	var number = convState.current.answer.value;
+            let account = data[i];
+            let info = {text: [account[hresult]]};//, value: [account.email]};
+            array.push(info);
+        }
+						console.log(array);
+						original = convState.current;
+						convState.current.next = convState.newState({
+							type: 'select',
+							questions: ['Please select'],
+							answers: array
+						});
+						//convState.current.next.next = convState.newState({
+						//	type: 'select',
+						//	questions: ['Do you want to continue?'],
+						//	data: {action: $('.in-tab.active').attr('value') },
+						//	answers: [{text: 'Yes', value: 'yes'}, {text: 'No', value: 'no'}],
+						//	callback: askAgain
+						//});
+						ready();
+					},
+					error: function (response) { alert(JSON.stringify(response)); }
+				});
+		}
+	</script>
+	<script>
+		jQuery(function($){
+			var convForm = $('#chat').convform();
+			console.log(convForm);
+		});
+	</script>
+</body>
+</html>
