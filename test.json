@@ -1,4 +1,4 @@
-[{
+{
         "page": 1,
         "per_page": 6,
         "total": 12,
@@ -47,4 +47,3 @@
             "text": "A weekly newsletter focusing on software development, infrastructure, the server, performance, and the stack end of things."
         }
     }
-]
